@@ -1,4 +1,4 @@
-#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\finger.cpp"
+#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\finger.cpp"
 #include "finger.h"
 HardwareSerial mySerial(2);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
@@ -51,7 +51,8 @@ void Add_FR()
                     u8g2.drawXBMP(89, 18, 16, 16, str3);
                     u8g2.sendBuffer(); // 开显示
                     beep(1);           // 蜂鸣器响
-                    delay(1000);
+                    while (digitalRead(34) != 0)
+                        ; // 等待指纹松开
                 }
                 else
                 {
@@ -66,16 +67,16 @@ void Add_FR()
             i++;
             // !再按一次
             Serial.println("Please Press Again...");
-            while (digitalRead(34) != 1)
-                ; // 等待指纹按下
             u8g2.clearBuffer();
             u8g2.drawXBMP(25, 18, 16, 16, str7); // 请再按一次
             u8g2.drawXBMP(41, 18, 16, 16, str46);
-            u8g2.drawXBMP(57, 18, 16, 16, str47);
-            u8g2.drawXBMP(73, 18, 16, 16, str37);
+            u8g2.drawXBMP(57, 18, 16, 16, str15);
+            u8g2.drawXBMP(73, 18, 16, 16, str47);
             u8g2.drawXBMP(89, 18, 16, 16, str48);
             u8g2.sendBuffer(); // 开显示
             beep(1);           // 蜂鸣器响
+            while (digitalRead(34) != 1)
+                ; // 等待指纹按下
             ensure = finger.getImage();
             if (ensure == FINGERPRINT_OK)
             {
@@ -84,6 +85,8 @@ void Add_FR()
                 {
                     // 指纹正常
                     Serial.println("Press Again OK");
+                    i = 0;
+                    processnum = 2; // 跳到第三步
                     u8g2.clearBuffer();
                     u8g2.drawXBMP(25, 18, 16, 16, str7); // 请移开手指
                     u8g2.drawXBMP(41, 18, 16, 16, str9);
@@ -91,10 +94,9 @@ void Add_FR()
                     u8g2.drawXBMP(73, 18, 16, 16, str10);
                     u8g2.drawXBMP(89, 18, 16, 16, str3);
                     u8g2.sendBuffer(); // 开显示
-                    i = 0;
-                    processnum = 2; // 跳到第三步
                     beep(1);        // 蜂鸣器响
-                    delay(1000);
+                    while (digitalRead(34) != 0)
+                        ; // 等待指纹松开
                 }
                 else
                 {

@@ -1,4 +1,4 @@
-c:\Users\shike\Desktop\客户资料\4-14lumen\ 智能门锁\ArduinoLock\build\libraries\WiFiClientSecure\esp_crt_bundle.c.o: \
+c:\Users\shike\Desktop\客户资料\（结单）4-14lumen\ 智能门锁\ArduinoLock\build\libraries\WiFiClientSecure\esp_crt_bundle.c.o: \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12\libraries\WiFiClientSecure\src\esp_crt_bundle.c \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12/tools/sdk/esp32/include/esp_system/include/esp_system.h \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12/tools/sdk/esp32/include/esp_common/include/esp_err.h \

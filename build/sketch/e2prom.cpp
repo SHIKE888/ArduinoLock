@@ -1,8 +1,8 @@
-#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\e2prom.cpp"
+#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\e2prom.cpp"
 #include "E2prom.h"
 String Auth = "5d2befcadda6";
 String Ssid = "Pura 70";
-String Pswd = "12345678";
+String Pswd = "12345678.";
 // 获取指定EEPROM位置的字符串，从EEPROM的a位开始读取
 String get_string(int a)
 {

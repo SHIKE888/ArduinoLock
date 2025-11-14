@@ -1,9 +1,9 @@
-# 1 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino"
+# 1 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino"
 
 
-# 4 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino" 2
-# 5 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino" 2
-String admin = "610AAA";
+# 4 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino" 2
+# 5 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\ArduinoLock.ino" 2
+String admin = "258ABC";
 char auth[30];
 char ssid[30];
 char pswd[30];

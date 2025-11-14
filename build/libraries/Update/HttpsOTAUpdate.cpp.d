@@ -1,4 +1,4 @@
-c:\Users\shike\Desktop\客户资料\4-14lumen\ 智能门锁\ArduinoLock\build\libraries\Update\HttpsOTAUpdate.cpp.o: \
+c:\Users\shike\Desktop\客户资料\（结单）4-14lumen\ 智能门锁\ArduinoLock\build\libraries\Update\HttpsOTAUpdate.cpp.o: \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12\libraries\Update\src\HttpsOTAUpdate.cpp \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12/tools/sdk/esp32/include/freertos/include/esp_additions/freertos/FreeRTOSConfig.h \

@@ -1,4 +1,4 @@
-#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\4-14lumen 智能门锁\\ArduinoLock\\door.cpp"
+#line 1 "c:\\Users\\shike\\Desktop\\客户资料\\（结单）4-14lumen 智能门锁\\ArduinoLock\\door.cpp"
 #include "Door.h"
 
 void beep(char a)
@@ -34,5 +34,9 @@ void Open_door(int a, int t)
         beep(2);
         delay(t);
         digitalWrite(4, LOW);
+    }
+    else
+    {
+        err++;
     }
 }

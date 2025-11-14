@@ -6,8 +6,8 @@ char keys[ROWS][COLS] = {
     {'4', '5', '6', 'B'},
     {'7', '8', '9', 'C'},
     {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {13, 12, 14, 27};                                              // connect to the row pinouts of the keypad
-byte colPins[COLS] = {26, 25, 33, 32};                                              // connect to the column pinouts of the keypad
+byte rowPins[ROWS] = {26, 25, 33, 32};                                                  // connect to the row pinouts of the keypad
+byte colPins[COLS] = {13, 12, 14, 27};                             // connect to the column pinouts of the keypad
 int pw_checker[20] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // 用于存储密码的数组
 // Create an object of keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
@@ -192,7 +192,7 @@ int Key_verify(String str) // 密码验证
     u8g2.drawXBMP(81, 20, 16, 16, str6); // 误
     u8g2.sendBuffer(); // 开显示
     beep(3);                             // 蜂鸣器响
-    err++; // 错误次数加1
+    delay(5000);
     return 0;
 }
 int get_id(int checker[20])
@@ -329,6 +329,7 @@ void Key_set() // 密码设置
 void Key_clear()
 {
     EEPROM.begin(4096);
+    Serial.print("pw_sign[");
     for (int i = 0; i < 20; i++)
     {
         pw_checker[i] = EEPROM.read(3500 + i); // 获取ID标识

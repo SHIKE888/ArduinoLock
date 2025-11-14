@@ -227,6 +227,7 @@ void RFID_add()
 void RFID_clear()
 {
     EEPROM.begin(4096);
+    Serial.print("id_sign[");
     for (int i = 0; i < 20; i++)
     {
         RFID_checker[i] = EEPROM.read(3520 + i); // 获取ID标识

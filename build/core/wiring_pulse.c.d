@@ -1,4 +1,4 @@
-c:\Users\shike\Desktop\客户资料\4-14lumen\ 智能门锁\ArduinoLock\build\core\wiring_pulse.c.o: \
+c:\Users\shike\Desktop\客户资料\（结单）4-14lumen\ 智能门锁\ArduinoLock\build\core\wiring_pulse.c.o: \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12\cores\esp32\wiring_pulse.c \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12\cores\esp32\wiring_private.h \
  C:\Users\shike\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.12\cores\esp32\Arduino.h \
