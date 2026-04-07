@@ -1,7 +1,7 @@
 #include "E2prom.h"
 String Auth = "5d2befcadda6";
 String Ssid = "Pura 70";
-String Pswd = "12345678";
+String Pswd = "12345678.";
 // 获取指定EEPROM位置的字符串，从EEPROM的a位开始读取
 String get_string(int a)
 {
