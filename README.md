@@ -1,43 +1,149 @@
 # ArduinoLock
 
-基于 ESP32 的多方式智能门锁项目，支持本地与联网双模式开锁，并提供 OLED 状态显示和 Web 配网功能。
+ArduinoLock 是一个基于 ESP32 的多方式智能门锁项目，集成密码、指纹、RFID、远程控制与本地显示交互，适用于家庭、办公室和实验室等场景。
 
-## 功能简介
+## 目录
 
-- 密码开锁（矩阵键盘）
-- 指纹开锁（Adafruit Fingerprint）
-- RFID 卡开锁（MFRC522）
-- Blinker 远程开锁
-- OLED 显示交互状态
-- 失败次数限制与锁定倒计时
-- Web AP 配网并保存 WiFi/Blinker 参数到 EEPROM
+- [项目概述](#项目概述)
+- [功能列表](#功能列表)
+- [系统架构](#系统架构)
+- [硬件连接](#硬件连接)
+- [软件依赖](#软件依赖)
+- [工程结构](#工程结构)
+- [运行流程](#运行流程)
+- [数据存储规划](#数据存储规划)
+- [使用说明](#使用说明)
+- [常见问题](#常见问题)
+- [扩展建议](#扩展建议)
 
-## 目录说明
+## 项目概述
 
-- `ArduinoLock/`：主工程源码（`.ino` 与各模块 `.cpp/.h`）
-- `build/`：本地编译产物与中间文件（不应提交到仓库）
+项目采用模块化设计，支持离线认证与联网增强两种模式：
 
-## 主要模块
+- 离线认证：密码、指纹、RFID 均可在无网络情况下工作。
+- 联网增强：支持 Blinker 远程开锁和 Web AP 配网。
+- 人机交互：OLED 显示状态信息，蜂鸣器提供提示反馈。
+- 安全策略：错误计数与锁定倒计时机制，避免暴力尝试。
 
-- `ArduinoLock.ino`：主流程与状态机
-- `finger.cpp`：指纹录入、删除、验证
-- `rfid.cpp`：RFID 读卡、添加、校验
-- `key.cpp`：键盘输入与密码管理
-- `web.cpp`：AP 模式配网与参数保存
-- `e2prom.cpp`：EEPROM 读写封装
-- `door.cpp`：开门控制与蜂鸣器反馈
+## 功能列表
 
-## 开发说明
+- 密码开锁（4x4 矩阵键盘输入）
+- 指纹开锁（录入、识别、删除）
+- RFID 开锁（卡片录入、验证、清除）
+- Blinker 远程开门控制
+- AP 模式网页配网（SSID、密码、设备密钥）
+- OLED 动态界面提示与状态显示
+- 错误次数阈值锁定与倒计时恢复
 
-- 平台：ESP32（Arduino Framework）
-- 依赖库见 `build/libraries/` 的编译引用（如 U8g2、MFRC522、Blinker、Adafruit_Fingerprint）
-- 上传前请确保 `build/` 不被纳入提交
+## 系统架构
 
-## 上传前建议
+- 入口控制：ArduinoLock.ino 负责初始化、主循环与页面状态切换。
+- 认证模块：key.cpp、finger.cpp、rfid.cpp 负责各类身份校验。
+- 执行模块：door.cpp 负责门锁动作与蜂鸣器反馈。
+- 配置模块：web.cpp 与 Websettings.h 负责 AP 配网。
+- 存储模块：e2prom.cpp 负责 EEPROM 读写封装。
+- 显示模块：font.h + U8g2 负责图像与文字显示。
 
-可用以下命令确认构建目录不会被提交：
+## 硬件连接
 
-```bash
-git status
-git check-ignore -v build/
-```
+关键引脚定义如下（以源码为准）：
+
+| 功能 | 引脚 |
+| --- | --- |
+| 门锁控制输出 | GPIO4 |
+| 蜂鸣器 | GPIO15 |
+| 指纹触发输入 | GPIO34 |
+| RFID SS | GPIO5 |
+| RFID RST | GPIO2 |
+| RFID SPI | SCK=18, MISO=19, MOSI=23 |
+
+矩阵键盘引脚（4x4）：
+
+- 行：13, 12, 14, 27
+- 列：26, 25, 33, 32
+
+## 软件依赖
+
+项目主要依赖以下库：
+
+- Blinker
+- U8g2
+- MFRC522
+- SPI
+- Adafruit Fingerprint Sensor Library
+- Keypad
+- EEPROM
+- WiFi / WebServer / DNSServer / HTTPClient
+- ArduinoJson
+
+## 工程结构
+
+- ArduinoLock/：主工程源码目录
+- ArduinoLock/ArduinoLock.ino：主程序入口与主循环
+- ArduinoLock/key.cpp：键盘输入与密码管理
+- ArduinoLock/finger.cpp：指纹录入/识别/删除
+- ArduinoLock/rfid.cpp：RFID 扫描与校验
+- ArduinoLock/door.cpp：继电器与蜂鸣器控制
+- ArduinoLock/web.cpp：Web 配网与网络接口
+- ArduinoLock/e2prom.cpp：EEPROM 配置与字符串存取
+- ArduinoLock/Websettings.h：AP 参数与配置页面
+- build/：本地编译产物目录
+
+## 运行流程
+
+1. 上电初始化 OLED、EEPROM、键盘、RFID、指纹与网络模块。
+2. 普通页面下执行认证监听：
+	- 按 #：进入密码输入并验证。
+	- 按 *：请求管理员密码后切换至管理页面。
+	- 检测到指纹触发：执行指纹识别。
+	- 检测到 RFID 卡：读取 UID 并校验。
+3. 管理页面支持：
+	- 启动 Web 配网
+	- 添加/删除指纹
+	- 添加/删除 RFID 卡
+	- 添加/删除密码
+4. 认证成功执行开锁动作，失败累计错误计数。
+5. 错误次数达到阈值后触发锁定倒计时，结束后恢复。
+
+## 数据存储规划
+
+EEPROM 总大小为 4096 字节，地址分区如下：
+
+- 0000-2431：Blinker 相关数据
+- 2560-2650：网络与设备参数
+- 2700-3000：密码数据区
+- 3100-3400：RFID UID 数据区
+- 3500-4095：标志位与计数器
+
+常见地址：
+
+- 2560：WiFi SSID
+- 2590：WiFi 密码
+- 2620：设备密钥
+- 3500：密码标志位起始
+- 3520：RFID 标志位起始
+- 4000：指纹 ID 计数
+
+## 使用说明
+
+1. 按硬件连接完成接线。
+2. 在 Arduino IDE 安装 ESP32 开发板支持包。
+3. 安装本项目依赖库。
+4. 打开 ArduinoLock/ArduinoLock.ino，选择正确开发板与串口。
+5. 编译并烧录到设备。
+6. 首次启动后可通过管理流程完成配网和用户数据录入。
+
+## 常见问题
+
+- 网络连接失败：检查 SSID/密码是否正确，必要时重新进入配网。
+- 指纹识别异常：检查传感器供电、串口连接与触发输入状态。
+- RFID 识别失败：检查 SPI 引脚与卡片兼容性（MIFARE Classic）。
+- 键盘输入异常：核对行列引脚配置是否与硬件一致。
+- 出现锁定倒计时：等待倒计时结束后再进行认证。
+
+## 扩展建议
+
+- 启用并完善 OTP 二次校验流程。
+- 增加开锁记录（时间、认证方式、结果）。
+- 增加 NTP 校时，提升日志可读性。
+- 增加配置备份与恢复能力。
