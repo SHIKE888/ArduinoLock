@@ -20,4 +20,5 @@
  * EEPROM address 3500-4000 is used for Counters
  >>> EEPROM address 3500-3519 is used for user key Counter(1 is used,0 is unused)
  >>> EEPROM address 3520-3539 is used for IC key Counter(1 is used,0 is unused)
+ >>> EEPROM address 3560-3590 is used for OTP_BASE32
  >>> EEPROM address 4000 is used for finger number

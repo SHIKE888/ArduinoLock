@@ -1,5 +1,6 @@
 #define BLINKER_PRINT Serial
 #define BLINKER_WIFI
+#define DOOR_TIME 1000
 #include <Blinker.h>
 #include "include.h"
 String admin = "258ABC";
@@ -7,6 +8,8 @@ char auth[30];
 char ssid[30];
 char pswd[30];
 char err = 0;
+String otp1 = "";
+String otp2 = "";
 char page = 1;
 char user_order = ' ';
 BlinkerButton Button1("btn-abc");
@@ -30,6 +33,9 @@ void setup()
     u8g2.drawXBMP(57, 24, 16, 16, str34); // 初
     u8g2.drawXBMP(73, 24, 16, 16, str35); // 始
     u8g2.drawXBMP(89, 24, 16, 16, str36); // 化
+    u8g2.setFont(u8g2_font_ncenB08_tr); // 字体08
+    u8g2.setCursor(10, 54);        // 设置显示位置
+    u8g2.print("Press [*] to set WiFi"); // 输出字符
     u8g2.sendBuffer();
     WiFi.mode(WIFI_STA); // 设置WiFi为STA模式
     EEPROM_Config();     // 初始化EEPROM
@@ -48,36 +54,24 @@ void setup()
     Blinker.begin(auth, ssid, pswd);
     // Blinker.attachData(dataRead);
     Button1.attach(button1_callback);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      delay(500);
+      Serial.print(".");
+      if (get_key() == '*')
+      {
+        beep(1);
+        Serial.println("WEB config");
+        Serial.println("Please open the browser and enter the IP address: ");
+        setWiFi(); // 调用配网函数
+      }
+    }
     delay(2000);
     lbeep(1000); // 蜂鸣器响
 }
 
 void loop()
 {
-    if (err >= 5)
-    {
-        Serial.println("Error times over 5, please reset the system!");
-        for(int i = 300; i > 0; i--)
-        {
-            u8g2.clearBuffer();
-            u8g2.drawXBMP(33, 20, 16, 16, str32); // 系统锁死
-            u8g2.drawXBMP(49, 20, 16, 16, str33);
-            u8g2.drawXBMP(65, 20, 16, 16, str27);
-            u8g2.drawXBMP(81, 20, 16, 16, str28);
-            u8g2.setCursor(25, 50); // 设置显示位置
-            u8g2.print("Please wait for"); // 输出字符
-            u8g2.setCursor(30, 60);         // 设置显示位置
-            u8g2.print(i);                // 输出字符
-            u8g2.setCursor(55, 60);         // 设置显示位置
-            u8g2.print("Seconds");         // 输出字符
-            u8g2.sendBuffer(); // 开显示
-            delay(950); // 延时1秒
-        }
-        err = 0;
-        beep(2); // 蜂鸣器响
-        delay(500);
-        lbeep(1000); // 蜂鸣器响
-    }
     // 串口指令读取
     if (Serial.available())
         user_order = Serial.read();
@@ -87,7 +81,7 @@ void loop()
     {
         flag = 0;
         beep(1);
-        Open_door(Key_verify(get_pswd()), 500); // 获取并验证密码
+        Open_door(Key_verify(get_pswd()), 200); // 获取并验证密码
         // Serial.print("Key Pressed : ");
         // Serial.println(key);
     }
@@ -141,20 +135,51 @@ void loop()
         Serial.println("Delete password");
         Key_clear();
     }
+    // else if (key == '8' && page == 2)
+    // {
+    //     beep(1);
+    //     Serial.println("Get recode key");
+    //     get_qrcode();
+    // }
 
     if (digitalRead(34) == 1 && page == 1)
     {
-        Open_door(Press_FR(), 500); // 调用Press_FR函数
+        Open_door(Press_FR(), DOOR_TIME); // 调用Press_FR函数
     }
     if (uid != "" && page == 1)
     {
         Serial.print("get UID: ");
-        Serial.println(uid);              // 打印UID
-        Open_door(RFID_verify(uid), 500); // 调用RFID_verify函数
+        Serial.println(uid);                    // 打印UID
+        Open_door(RFID_verify(uid), DOOR_TIME); // 调用RFID_verify函数
     }
     if (WiFi.status() == WL_CONNECTED)
         Blinker.run();
-
+    
+    if (err >= 3)
+    {
+        lbeep(1000); // 蜂鸣器响
+        Serial.println("Error times over 3, please reset the system!");
+        for (int i = 300; i > 0; i--)
+        {
+            u8g2.clearBuffer();
+            u8g2.drawXBMP(33, 20, 16, 16, str32); // 系统锁死
+            u8g2.drawXBMP(49, 20, 16, 16, str33);
+            u8g2.drawXBMP(65, 20, 16, 16, str27);
+            u8g2.drawXBMP(81, 20, 16, 16, str28);
+            u8g2.setCursor(25, 50);        // 设置显示位置
+            u8g2.print("Please wait for"); // 输出字符
+            u8g2.setCursor(30, 60);        // 设置显示位置
+            u8g2.print(i);                 // 输出字符
+            u8g2.setCursor(55, 60);        // 设置显示位置
+            u8g2.print("Seconds");         // 输出字符
+            u8g2.sendBuffer();             // 开显示
+            delay(990);                    // 延时1秒
+        }
+        err = 0;
+        beep(2); // 蜂鸣器响
+        delay(500);
+        lbeep(1000); // 蜂鸣器响
+    }
     oleddisplay();
 }
 

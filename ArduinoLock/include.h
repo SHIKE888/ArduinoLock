@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #define u8 signed char
 #include <WiFi.h>
+#include <HTTPClient.h>
 #include <EEPROM.h>
 
 #include <U8g2lib.h>
@@ -14,7 +15,6 @@
 #include <HardwareSerial.h>
 #include <Keypad.h>
 #include "Finger.h"
-//#include "RFID.h"
 #include "Key.h"
 #include "Door.h"
 #include "E2prom.h"
@@ -24,6 +24,7 @@
 extern U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2; // 0.96寸oled屏幕参数(SSD1306)
 extern char err;
 extern char user_order; // 存储用户输入的串口指令
-
+extern String otp1; // 存储用户输入的验证码
+extern String otp2; // 存储用户输入的验证码
 
 #endif // INCLUDE_H

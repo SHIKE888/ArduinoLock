@@ -6,14 +6,16 @@ char keys[ROWS][COLS] = {
     {'4', '5', '6', 'B'},
     {'7', '8', '9', 'C'},
     {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {26, 25, 33, 32};                                                  // connect to the row pinouts of the keypad
-byte colPins[COLS] = {13, 12, 14, 27};                             // connect to the column pinouts of the keypad
+//byte rowPins[ROWS] = {26, 25, 33, 32};
+//byte colPins[COLS] = {13, 12, 14, 27};
+byte rowPins[ROWS] = {13, 12, 14, 27};
+byte colPins[COLS] = {26, 25, 33, 32};
 int pw_checker[20] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // 用于存储密码的数组
 // Create an object of keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 String pswd0 = "";
 
-int flag = 0; // 0:输入密码 1:输入管理员密码 2:输入新密码 3:再次输入密码
+int flag = 0; // 0:输入密码 1:输入管理员密码 2:输入新密码 3:再次输入密码 4:输入密钥
 void Key_init()
 {
     Serial.print("Read key_sign["); // 打印密码标识
@@ -74,6 +76,16 @@ void screen(int a)
         u8g2.drawXBMP(57, 18, 16, 16, str37);
         u8g2.drawXBMP(73, 18, 16, 16, str47);
         u8g2.drawXBMP(89, 18, 16, 16, str48);
+    }
+    else if (a == 4)
+    { // 请输入动态密钥
+        u8g2.drawXBMP(9, 18, 16, 16, str7);
+        u8g2.drawXBMP(25, 18, 16, 16, str37);
+        u8g2.drawXBMP(41, 18, 16, 16, str38);
+        u8g2.drawXBMP(57, 18, 16, 16, str64);
+        u8g2.drawXBMP(73, 18, 16, 16, str65);
+        u8g2.drawXBMP(89, 18, 16, 16, str39);
+        u8g2.drawXBMP(105, 18, 16, 16, str66);
     }
 }
 String get_pswd()
@@ -159,9 +171,56 @@ String get_pswd()
     Serial.println(pw); // 打印密码
     return pw;
 }
+int Otp_verify(String str) // 密钥验证
+{
+    if (str == "cancel")
+    {
+        return -1; // 取消操作
+    }
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(17, 20, 16, 16, str57); // 正
+    u8g2.drawXBMP(33, 20, 16, 16, str58); // 在
+    u8g2.drawXBMP(49, 20, 16, 16, str59); // 云
+    u8g2.drawXBMP(65, 20, 16, 16, str60); // 端
+    u8g2.drawXBMP(81, 20, 16, 16, str601); // 验
+    u8g2.drawXBMP(97, 20, 16, 16, str61); // 证
+    u8g2.sendBuffer();                    // 开显示
+    flag = 0;                             // 重置标志位
+    get_otp();
+    if (otp1 == "-1")
+    {
+        u8g2.clearBuffer();
+        u8g2.drawXBMP(17, 20, 16, 16, str59); // 云
+        u8g2.drawXBMP(33, 20, 16, 16, str60); // 端
+        u8g2.drawXBMP(49, 20, 16, 16, str62); // 处
+        u8g2.drawXBMP(65, 20, 16, 16, str63); // 理
+        u8g2.drawXBMP(81, 20, 16, 16, str5);  // 错
+        u8g2.drawXBMP(97, 20, 16, 16, str6);  // 误
+        u8g2.sendBuffer();                    // 开显示
+        beep(3);                              // 蜂鸣器响
+        delay(2000);
+    }
+    if (str == otp1 || str == otp2)
+    {
+        Serial.print("Otp is correct!"); // 打印密码标识
+        beep(2);                         // 蜂鸣器响
+        delay(2000);
+        return 1; //! 密钥正确
+    }
+    Serial.println("Key is incorrect!"); //! 密钥错误
+    u8g2.clearBuffer();
+    u8g2.drawXBMP(33, 20, 16, 16, str39); // 密
+    u8g2.drawXBMP(49, 20, 16, 16, str66); // 钥
+    u8g2.drawXBMP(65, 20, 16, 16, str5);  // 错
+    u8g2.drawXBMP(81, 20, 16, 16, str6);  // 误
+    u8g2.sendBuffer();                    // 开显示
+    beep(3);                              // 蜂鸣器响
+    delay(5000);
+    return 0;
+}
 int Key_verify(String str) // 密码验证
 {
-    if(str == "cancel")
+    if (str == "cancel")
     {
         return -1; // 取消操作
     }
@@ -180,21 +239,26 @@ int Key_verify(String str) // 密码验证
             {
                 Serial.print("Key is correct!  ID = ");
                 Serial.println(i); // 打印密码标识
-                return 1;          //! 密码正确
-            } 
+                // return 1;          //! 密码正确
+                flag = 4;
+                beep(2); // 蜂鸣器响
+                //return Otp_verify(get_pswd());//开启otp验证
+                return 1;//关闭otp
+            }
         }
     }
     Serial.println("Key is incorrect!"); //! 密码错误
     u8g2.clearBuffer();
     u8g2.drawXBMP(33, 20, 16, 16, str39); // 密
     u8g2.drawXBMP(49, 20, 16, 16, str40); // 码
-    u8g2.drawXBMP(65, 20, 16, 16, str5); // 错
-    u8g2.drawXBMP(81, 20, 16, 16, str6); // 误
-    u8g2.sendBuffer(); // 开显示
-    beep(3);                             // 蜂鸣器响
+    u8g2.drawXBMP(65, 20, 16, 16, str5);  // 错
+    u8g2.drawXBMP(81, 20, 16, 16, str6);  // 误
+    u8g2.sendBuffer();                    // 开显示
+    beep(3);                              // 蜂鸣器响
     delay(5000);
     return 0;
 }
+
 int get_id(int checker[20])
 {
     u8g2.clearBuffer(); //! 请输入编号
@@ -203,26 +267,28 @@ int get_id(int checker[20])
     u8g2.drawXBMP(57, 18, 16, 16, str38);
     u8g2.drawXBMP(73, 18, 16, 16, str54);
     u8g2.drawXBMP(89, 18, 16, 16, str55);
-    u8g2.setCursor(52, 49);               // 设置显示位置
-    u8g2.print("_");                   // 输出字符
-    u8g2.setCursor(68, 49);               // 设置显示位置
-    u8g2.print("_");                   // 输出字符
+    u8g2.setCursor(52, 49); // 设置显示位置
+    u8g2.print("_");        // 输出字符
+    u8g2.setCursor(68, 49); // 设置显示位置
+    u8g2.print("_");        // 输出字符
     int j = 0;
-    for(int i=0;i<10;i++){
-        if(checker[i]==1){
+    for (int i = 0; i < 10; i++)
+    {
+        if (checker[i] == 1)
+        {
             u8g2.setCursor(j * 6, 61); // 设置显示位置
             u8g2.print(i);
             j++;
         }
     }
-    for(int i = 10; i < 20; i++)
+    for (int i = 10; i < 20; i++)
     {
         if (checker[i] == 1)
         {
             u8g2.setCursor(j * 6, 62); // 设置显示位置
             u8g2.print("_");
             u8g2.setCursor(j * 6, 61); // 设置显示位置
-            u8g2.print(i-10);
+            u8g2.print(i - 10);
             j++;
         }
     }
@@ -250,7 +316,7 @@ int get_id(int checker[20])
             beep(1);           // 蜂鸣器响
             c++;
             delay(1000); // 延时1秒
-            beep(2); // 蜂鸣器响
+            beep(2);     // 蜂鸣器响
         }
     }
     return id;
@@ -269,7 +335,7 @@ void Key_set() // 密码设置
             case 0:
                 flag = 2; //! 请输入新密码
                 pswd0 = get_pswd();
-                if(pswd0 == "cancel")
+                if (pswd0 == "cancel")
                 {
                     return; // 取消操作
                 }
@@ -293,38 +359,37 @@ void Key_set() // 密码设置
                     u8g2.clearBuffer();
                     u8g2.drawXBMP(33, 20, 16, 16, str37); // 输
                     u8g2.drawXBMP(49, 20, 16, 16, str38); // 入
-                    u8g2.drawXBMP(65, 20, 16, 16, str5); // 错
-                    u8g2.drawXBMP(81, 20, 16, 16, str6); // 误
-                    u8g2.sendBuffer();                   // 开显示
+                    u8g2.drawXBMP(65, 20, 16, 16, str5);  // 错
+                    u8g2.drawXBMP(81, 20, 16, 16, str6);  // 误
+                    u8g2.sendBuffer();                    // 开显示
                     delay(1000);
                     beep(3);
                     a = 0;
                     break;
                 }
-            case 2: //! 密码设置成功
+            case 2:                          //! 密码设置成功
                 int id = get_id(pw_checker); // 获取ID
                 EEPROM.begin(4096);
                 set_string(2700 + 10 * id, pswd0); // 保存密码到EEPROM
                 pw_checker[id] = 1;
                 EEPROM.write(3500 + id, pw_checker[id]); // 保存密码标识到EEPROM
-                EEPROM.commit(); // 执行保存EEPROM
+                EEPROM.commit();                         // 执行保存EEPROM
                 Serial.print("Password ID: ");
                 Serial.println(id); // 打印密码标识
 
-                u8g2.clearBuffer(); //! 添加成功
+                u8g2.clearBuffer();                   //! 添加成功
                 u8g2.drawXBMP(33, 20, 16, 16, str52); // 添加成功
-                u8g2.drawXBMP(49, 20, 16, 16, str53); 
-                u8g2.drawXBMP(65, 20, 16, 16, str13);  
-                u8g2.drawXBMP(81, 20, 16, 16, str14);  
-                u8g2.sendBuffer();                   // 开显示
-                beep(2);                             // 蜂鸣器响
+                u8g2.drawXBMP(49, 20, 16, 16, str53);
+                u8g2.drawXBMP(65, 20, 16, 16, str13);
+                u8g2.drawXBMP(81, 20, 16, 16, str14);
+                u8g2.sendBuffer(); // 开显示
+                beep(2);           // 蜂鸣器响
                 delay(1000);
                 flag = 0; //! 请输入密码
-                return; // 退出函数
+                return;   // 退出函数
             }
         }
     }
-
 }
 void Key_clear()
 {
@@ -342,16 +407,16 @@ void Key_clear()
     pw_checker[id] = 0; // 清除密码标识
     EEPROM.begin(4096);
     EEPROM.write(3500 + id, pw_checker[id]); // 保存密码标识
-    EEPROM.commit();                           // 执行保存EEPROM
+    EEPROM.commit();                         // 执行保存EEPROM
     Serial.println("key cleared!  ID = ");
-    Serial.print(id); // 打印密码标识
-    u8g2.clearBuffer(); //! 删除成功
+    Serial.print(id);                     // 打印密码标识
+    u8g2.clearBuffer();                   //! 删除成功
     u8g2.drawXBMP(33, 20, 16, 16, str50); // 删除成功
     u8g2.drawXBMP(49, 20, 16, 16, str51);
     u8g2.drawXBMP(65, 20, 16, 16, str13);
     u8g2.drawXBMP(81, 20, 16, 16, str14);
     u8g2.sendBuffer(); // 开显示
-    beep(2);         // 蜂鸣器响
+    beep(2);           // 蜂鸣器响
 
     delay(1000);
 }
